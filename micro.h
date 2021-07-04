@@ -1,15 +1,33 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
-typedef struct
+
+typedef struct 
 {
-	float width;
-	float height;
-}	t_back;
+	float	width;
+	float	height;
+	char	back_c;
+}	t_background;
 
-void	*ft_putstr(char *str);
-void	file_error();
-int	ft_draw(FILE *fp);
-int	draw_background(FILE *fp, int i, int j, int k, t_back *inf);
-void	draw_line(int len, char c);
-int	drawing(FILE *fp, t_back inf);
+typedef struct	s_lines
+{
+	char	fill;
+	float	x;
+	float	y;
+	float	width;
+	float	height;
+	char	c;
+	struct	s_lines *next;
+}	t_lines;
+
+void	ft_putstr(char *str);
+void	print_file_error();
+int	collect_data(FILE *fp, t_background *back, t_lines *lines);
+int	fill_back(FILE *fp, t_background *back);
+float	round_number(float o_num, int *error);
+void	print_all(t_lines *ls);
+char	**get_paint(t_background back);
+void	draw_all(t_lines *lins, t_background back);
+void	fill_line(char *str, char c, int size);
+void	draw_to_screen(char **paint);

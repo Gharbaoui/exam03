@@ -1,64 +1,91 @@
 #include "micro.h"
 
-void	*ft_putstr(char *str)
+int	main(int argc, char **argv)
 {
-	while (*str)
+	FILE	*fp;
+	t_background	back;
+	t_lines			*lines;
+
+	if (argc == 2)
 	{
-		write(1, str, 1);
-		str++;
+		fp = fopen(argv[1], "r");
+		if (!fp)
+		{
+			print_file_error();
+			return 1;
+		}
+		lines = malloc(sizeof(t_lines));
+		if (collect_data(fp, &back, lines))
+		{
+			print_file_error();
+			return 1;
+		}
+		draw_all(lines, back);
+	}
+	else
+	{
+		ft_putstr("Error: argument\n");
+		return 1;
 	}
 }
 
-void	file_error()
+/*void	print_all(t_lines *ls)
 {
-	ft_putstr("Error: Operation file corrupted\n");
+	while (ls->next)
+	{
+		printf("ch: %c X: %f Y: %f width: %f height: %f c: %c\n",
+		ls->fill, ls->x, ls->y, ls->width, ls->height, ls->c);
+		ls = ls->next;
+	}
+}*/
+
+int	collect_data(FILE *fp, t_background *back, t_lines *lines)
+{
+	t_lines *help;
+	int ret, err;
+	if (fill_back(fp, back))
+		return 1;
+	help = lines;
+	while (1)
+	{
+		help->fill = 0;
+		help->x = 0;
+		help->y = 0;
+		help->width = 0;
+		help->height = 0;
+		help->c = 0;
+		help->next = NULL;
+		err = 0;
+		ret = fscanf(fp, "%c %f %f %f %f %c\n",
+		&(help->fill), &(help->x), &(help->y),
+		&(help->width), &(help->height), &(help->c));
+		if (ret > 0)
+		{
+			if (ret != 6 || (help->fill != 'r' && help->fill != 'R'))
+				return 1;
+			help->width = round_number(help->width, &err);
+			if (err)
+				return 1;
+			help->height = round_number(help->height, &err);
+			if (err)
+				return 1;
+		}
+		else
+			break ;
+		help->next = malloc(sizeof(t_lines));
+		help = help->next;
+	}
+	return 0;
 }
 
-int	draw_background(FILE *fp, int i, int j, int k, t_back *inf)
+void	draw_to_screen(char **paint)
 {
-	int		ret;
-	float	width = 0;
-	int		w;
-	float	height = 0;
-	int		h;
-	char	c = 'a';
-	char	error;
+	int j;
 
-	ret = fscanf(fp, "%f %f %c %c", &width, &height, &c, &error);
-	if (ret != 3)
-		return 1;
-	if (!(width > 0 && width <= 300))
-		return 1;
-	if (!(height > 0 && width <= 300))
-		return 1;
-	inf->width = width;
-	inf->height = height;
-	w = (int)width;
-	h = (int)height;
-	if (width > w)
-		width++;
-	if (height > h)
-		height++;
-	while (j < height)
+	j = -1;
+	while (paint[++j])
 	{
-		draw_line(width, c);
+		ft_putstr(paint[j]);
 		write(1, "\n", 1);
-		j++;
 	}
-	return 0;
-}
-
-void	draw_line(int len, char c)
-{
-	int i;
-
-	i = -1;
-	while (++i < len)
-		write(1, &c, 1);
-}
-
-int	drawing(FILE *fp, t_back inf)
-{
-	
-	return 0;
 }
