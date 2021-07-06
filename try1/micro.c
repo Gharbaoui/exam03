@@ -13,6 +13,7 @@ int main(int argc, char **argv)
 		lines = NULL;
 		if (collect_data(&lines, &back, fp))
 			return file_error();
+		paint(lines, back);
 	}
 	else
 		return arg_error();

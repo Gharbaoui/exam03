@@ -52,3 +52,46 @@ int	free_before(t_line *lines)
 	}
 	return 1;
 }
+
+void	print_term(char **paint)
+{
+	int	i;
+
+	i = -1;
+	while (paint[++i])
+	{
+		ft_putstr(paint[i]);
+		write(1, "\n", 1);
+	}
+}
+
+char	**get_background(t_back back)
+{
+	char **tmp;
+	int i;
+
+	i = -1;
+	tmp = malloc(sizeof(char *) * (back.height + 1));
+	tmp[back.height] = 0;
+	while (++i < back.height)
+	{
+		tmp[i] = malloc(back.width + 1);
+		fill_tmp(tmp[i], back);
+	}
+	return tmp;
+}
+
+void	fill_tmp(char *str, t_back back)
+{
+	int i;
+
+	i = -1;
+	while (++i < back.width)
+		str[i] = back.c;
+	str[i] = 0;
+}
+
+void	draw_border(t_line line, t_back back)
+{
+
+}
