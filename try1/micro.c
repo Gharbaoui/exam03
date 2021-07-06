@@ -2,154 +2,83 @@
 
 int main(int argc, char **argv)
 {
-	t_line	*lines;
-	t_back	back;
+	t_back back;
+	t_line *lines;
 	FILE *fp;
-
 	if (argc == 2)
 	{
-		lines = NULL;
 		fp = fopen(argv[1], "r");
 		if (!fp)
 			return file_error();
-		if (collect_data(fp, &lines, &back))
+		lines = NULL;
+		if (collect_data(&lines, &back, fp))
 			return file_error();
-		start_draw(lines, back);
 	}
 	else
-	{
-		ft_putstr("Error: argument\n");
-		return 1;
-	}
+		return arg_error();
 }
 
-void	ft_putstr(char *str)
+int	collect_data(t_line **lines, t_back *back, FILE *fp)
 {
-	while (*str)
-	{
-		write(1, str, 1);
-		str++;
-	}
-}
-
-int	file_error()
-{
-	ft_putstr("Error: Operation file corrupted\n");
-	return 1;
-}
-
-int	get_background(FILE *fp, t_back *back)
-{
+	t_line *l;
+	t_f hold;
 	int ret;
 
-	ret = fscanf(fp, "%f %f %c\n", &back->width, &back->height, &back->c);
-	if (ret != 3)
+	l = NULL;
+	if (get_back(back, fp))
 		return 1;
-	back->width = get_exact_num(back->width);
-	if (back->width <= 0 || back->width > 300)
-		return 1;
-	back->height= get_exact_num(back->height);
-	if (back->height <= 0 || back->height > 300)
-		return 1;
+	while (1)
+	{
+		ret = fscanf(fp, "%c %f %f %f %f %c\n", &hold.c1, &hold.a, &hold.b,
+		&hold.c, &hold.d, &hold.c2);
+		if (ret > 0)
+		{
+			if (ret != 6)
+				return free_before(l);
+			if (add_to_list(&l, hold))
+				return free_before(l);
+		}
+		else
+			break ;
+	}
+	*lines = l;
 	return 0;
 }
 
-float	get_exact_num(float num)
+int	add_to_list(t_line **lines, t_f holder)
 {
-	int n;
+	t_line *cp;
+	t_line *last;
 
-	n = (int)num;
-	if (num < 0.00000000)
+	if (copy_one(&cp, holder))
+		return 1;
+	if (*lines)
 	{
-		if (num < n)
-			num = n - 1;
+		last = (*lines)->next;
+		while (last->next)
+			last = last->next;
+		last->next = cp;
 	}
 	else
-	{
-		if (num > n)
-			num = n + 1;
-	}
-	return num;
-}
-
-int	free_before(t_line *lines)
-{
-	t_line  *next;
-
-	if (lines)
-	{
-		next = lines->next;
-		while (lines)
-		{
-			free(lines);
-			lines = next;
-			if (lines)
-				next = next->next;
-		}
-	}
-	return 1;
-}
-
-int	check_valuse(t_line *ln)
-{
-	ln->x = get_exact_num(ln->x);
-	ln->y = get_exact_num(ln->y);
-	ln->width = get_exact_num(ln->width);
-	if (ln->width <= 0)
-		return 1;
-	ln->height = get_exact_num(ln->height);
-	if (ln->height <= 0)
-		return 1;
-	ln->width++;
-	ln->height++;
+		*lines = cp;
 	return 0;
 }
 
-void	print_info(t_line *lines, t_back back)
+int	copy_one(t_line **line, t_f holder)
 {
-	printf("width: %f height: %f c: %c\n", back.width, back.height, back.c);
-	while (lines)
-	{
-		printf("X: %f Y: %f width: %f height: %f c: %c\n", 
-			lines->x, lines->y, lines->width, lines->height, lines->c);
-		lines = lines->next;
-	}
-}
+	t_line *cp;
 
-void	print_map(char **str)
-{
-	int i;
-
-	i = -1;
-	while (str[++i])
-	{
-		ft_putstr(str[i]);
-		write(1, "\n", 1);
-	}
-}
-
-char	**get_paint(t_back back)
-{
-	char **paint;
-	int i;
-
-	i = -1;
-	paint = malloc(sizeof(char *) * (back.height + 1));
-	paint[(int)back.height] = NULL;
-	while (++i < back.height)
-	{
-		paint[i] = malloc(back.width + 1);
-		fill_paint(paint[i], back.c, back.width);
-	}
-	return paint;
-}
-
-void	fill_paint(char *str, char c, int size)
-{
-	int i;
-
-	i = -1;
-	while (++i < size)
-		str[i] = c;
-	str[i] = 0;
+	if (holder.c <= 0.00000000 || holder.d <= 0.00000000 ||
+	(holder.c1 != 'r' && holder.c1 != 'R'))
+		return 1;
+	cp = malloc(sizeof(t_line));
+	cp->f = holder.c1;
+	cp->c = holder.c2;
+	cp->x = holder.a;
+	cp->y = holder.b;
+	cp->width = holder.c;
+	cp->height = holder.d;
+	cp->next = NULL;
+	*line = cp;
+	return 0;
 }
