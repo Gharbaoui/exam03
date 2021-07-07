@@ -55,7 +55,7 @@ int	add_to_list(t_line **lines, t_f holder)
 		return 1;
 	if (*lines)
 	{
-		last = (*lines)->next;
+		last = *lines;
 		while (last->next)
 			last = last->next;
 		last->next = cp;
@@ -81,5 +81,46 @@ int	copy_one(t_line **line, t_f holder)
 	cp->height = holder.d;
 	cp->next = NULL;
 	*line = cp;
+	return 0;
+}
+
+t_rect get_rect(t_line line)
+{
+	t_rect rect;
+
+	rect.topl = get_point(line.x, line.y);
+	rect.topr = get_point(line.x + line.width, line.y);
+	rect.botl = get_point(line.x, line.y + line.height);
+	rect.botr = get_point(line.x + line.width, line.y + line.height);
+	return rect;
+}
+
+t_rect get_back_rect(t_back back)
+{
+	t_rect rect;
+
+	rect.topl = get_point(0, 0);
+	rect.topr = get_point(back.width, 0);
+	rect.botl = get_point(0, back.height);
+	rect.botr = get_point(back.width, back.height);
+	return rect;
+}
+
+t_point get_point(float x, float y)
+{
+	t_point p;
+
+	p.x = x;
+	p.y = y;
+	return p;
+}
+
+int	is_point_inside_rect(t_rect rect, t_point p)
+{
+	if (p.x >= rect.topl.x && p.x <= rect.topr.x)
+	{
+		if (p.y >= rect.topl.y && p.y <= rect.botl.y)
+			return 1;
+	}
 	return 0;
 }

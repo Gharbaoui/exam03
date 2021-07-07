@@ -31,10 +31,10 @@ typedef struct
 	float 	d;
 }	t_f;
 
-typedef struct
+typedef struct 
 {
-	int	x;
-	int	y;
+	float x;
+	float y;
 }	t_point;
 
 typedef struct
@@ -43,20 +43,6 @@ typedef struct
 	t_point topr;
 	t_point botl;
 	t_point botr;
-}	t_corners;
-
-typedef struct 
-{
-	float x;
-	float y;
-}	t_p;
-
-typedef struct
-{
-	t_p topl;
-	t_p topr;
-	t_p botl;
-	t_p botr;
 }	t_rect;
 
 void	ft_putstr(char *str);
@@ -71,10 +57,12 @@ void	paint(t_line *lines, t_back back);
 char	**get_background(t_back back);
 void	fill_tmp(char *str, t_back back);
 void	print_term(char **paint);
-void	draw_complete(t_line line, t_back back);
-void	draw_border(t_line line, t_back back);
-t_corners get_corners(t_line line);
+void	draw_complete(t_line line, t_back back, char **palette);
+void	draw_border(t_line line, t_back back, char **palette);
+t_rect get_rect(t_line line);
 t_point get_point(float x, float y);
-t_p real_point(float x, float y);
-t_rect	get_real_corners(t_line line);
-t_corners	get_back_corners(t_back back);
+void	print_rect(t_rect rect);
+t_rect get_back_rect(t_back back);
+int	is_point_inside_rect(t_rect rect, t_point p);
+int	point_in_border(t_rect rect, t_point p);
+float ft_abs(float val);

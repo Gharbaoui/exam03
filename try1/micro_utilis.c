@@ -8,86 +8,65 @@ void	paint(t_line *lines, t_back back)
 	while (lines)
 	{
 		if (lines->f == 'r')
-			draw_border(*lines, back);
+			draw_border(*lines, back, palette);
 		else
-			draw_complete(*lines, back);
+			draw_complete(*lines, back, palette);
 		lines = lines->next;
 	}
 	print_term(palette);
 }
 
-void	draw_complete(t_line line, t_back back)
-{
-	t_corners	cors;
-	t_corners	back_corners;
-	t_rect		realCorn;
-
-	cors = get_corners(line);
-	back_corners = get_back_corners(back);
-	realCorn = get_real_corners(line);
-	printf("topl: {x: %d, y: %d}\n", cors.topl.x, cors.topl.y);
-	printf("topr: {x: %d, y: %d}\n", cors.topr.x, cors.topr.y);
-	printf("botl: {x: %d, y: %d}\n", cors.botl.x, cors.botl.y);
-	printf("botr: {x: %d, y: %d}\n", cors.botr.x, cors.botr.y);
-	printf("-----------------------------------------\n");
-	printf("topl: {x: %f, y: %f}\n", realCorn.topl.x, realCorn.topl.y);
-	printf("topr: {x: %f, y: %f}\n", realCorn.topr.x, realCorn.topr.y);
-	printf("botl: {x: %f, y: %f}\n", realCorn.botl.x, realCorn.botl.y);
-	printf("botr: {x: %f, y: %f}\n", realCorn.botr.x, realCorn.botr.y);
-	printf("-----------------------------------------\n");
-	printf("topl: {x: %, y: %d}\n", back_corners.topl.x, back_corners.topl.y);
-	printf("topr: {x: %, y: %d}\n", back_corners.topr.x, back_corners.topr.y);
-	printf("botl: {x: %, y: %d}\n", back_corners.botl.x, back_corners.botl.y);
-	printf("botr: {x: %, y: %d}\n", back_corners.botr.x, back_corners.botr.y);
-}
-
-t_corners get_corners(t_line line)
-{
-	t_corners corn;
-
-	corn.topl = get_point(line.x - 1, line.y - 1);
-	corn.topr = get_point(line.x + line.width + 1, line.y - 1);
-	corn.botl = get_point(line.x - 1, line.y + line.height + 1);
-	corn.botr = get_point(line.x + line.width + 1, line.y + line.height + 1);
-	return corn;
-}
-
-t_point get_point(float x, float y)
-{
-	t_point p;
-
-	p.x = (int)x;
-	p.y = (int)y;
-	return p;
-}
-
-t_p real_point(float x, float y)
-{
-	t_p p;
-
-	p.x = x;
-	p.y = y;
-	return p;
-}
-
-t_rect	get_real_corners(t_line line)
+void	draw_complete(t_line line, t_back back, char **palette)
 {
 	t_rect rect;
+	t_rect back_rect;
+	t_point cp;
+	int	i;
+	int	j;
 
-	rect.topl = real_point(line.x, line.y);
-	rect.topr = real_point(line.x + line.width, line.y);
-	rect.botl = real_point(line.x, line.y + line.height);
-	rect.botr = real_point(line.x + line.width, line.y + line.height);
-	return rect;
+	rect = get_rect(line);
+	back_rect = get_back_rect(back);
+	i = -1;
+	while (++i < back.height)
+	{
+		j = -1;
+		while (++j < back.width)
+		{
+			cp = get_point(j, i);
+			if (is_point_inside_rect(rect, cp) && is_point_inside_rect(back_rect, cp))
+				palette[i][j] = line.c;
+		}
+	}
 }
 
-t_corners	get_back_corners(t_back back)
+void	draw_border(t_line line, t_back back, char **palette)
 {
-	t_corners corn;
+	t_rect rect;
+	t_rect back_rect;
+	t_point cp;
+	int	i;
+	int	j;
 
-	corn.topl = get_point(0, 0);
-	corn.topr = get_point(back.width, 0);
-	corn.botl = get_point(0, back.height);
-	corn.topr = get_point(back.width, back.height);
-	return corn;
+	rect = get_rect(line);
+	back_rect = get_back_rect(back);
+	i = -1;
+	while (++i < back.height)
+	{
+		j = -1;
+		while (++j < back.width)
+		{
+			cp = get_point(j, i);
+			if (is_point_inside_rect(rect, cp) && is_point_inside_rect(back_rect, cp) && point_in_border(rect, cp))
+				palette[i][j] = line.c;
+		}
+	}
+}
+
+int	point_in_border(t_rect rect, t_point p)
+{
+	if (p.y - rect.topl.y < 1 || rect.botl.y - p.y < 1)
+		return 1;
+	if (p.x - rect.topl.x < 1 || rect.topr.x - p.x < 1)
+		return 1;
+	return 0;
 }

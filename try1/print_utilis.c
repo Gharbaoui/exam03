@@ -91,7 +91,10 @@ void	fill_tmp(char *str, t_back back)
 	str[i] = 0;
 }
 
-void	draw_border(t_line line, t_back back)
+void	print_rect(t_rect rect)
 {
-
+	printf("top left: {x: %f, y: %f}\n", rect.topl.x, rect.topl.y);
+	printf("top right: {x: %f, y: %f}\n", rect.topr.x, rect.topr.y);
+	printf("bot left: {x: %f, y: %f}\n", rect.botl.x, rect.botl.y);
+	printf("bot right: {x: %f, y: %f}\n", rect.botr.x, rect.botr.y);
 }
